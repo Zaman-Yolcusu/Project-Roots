@@ -12,29 +12,41 @@ public class FPSController : MonoBehaviour
     public float gravity = 10f;
 
 
+    public float lookSpeed = 2f;
+    public float lookXLimit = 45f;
 
-    // Start is called before the first frame update
+
+    Vector3 moveDirection = Vector3.zero;
+    float rotationX = 0;
+
+    public bool canMove = true;
+
+
+    CharacterController characterController;
     void Start()
     {
         characterController = GetComponent<CharacterController>();
-        cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        Vector3 forward = transfrom.TransformDirection(Vector3.forward);
+
+        #region Handles Movment
+        Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
-        //Kosmak icin L SHIFT
+        // Press Left Shift to run
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
         float curSpeedX = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
         float curSpeedY = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
         float movementDirectionY = moveDirection.y;
-        movementDirectionY = (forward * curSpeedX) + (right * curSpeedY);
+        moveDirection = (forward * curSpeedX) + (right * curSpeedY);
 
-        //Ziplama Hareketleri
+        #endregion
+
+        #region Handles Jumping
         if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
         {
             moveDirection.y = jumpPower;
@@ -49,8 +61,9 @@ public class FPSController : MonoBehaviour
             moveDirection.y -= gravity * Time.deltaTime;
         }
 
+        #endregion
 
-        //Handles Rotation
+        #region Handles Rotation
         characterController.Move(moveDirection * Time.deltaTime);
 
         if (canMove)
@@ -61,8 +74,6 @@ public class FPSController : MonoBehaviour
             transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
         }
 
-
-
-
+        #endregion
     }
 }
